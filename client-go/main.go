@@ -16,5 +16,5 @@ func main() {
 
  http.HandleFunc("/api/v1/ping", handler.Ping)
  fmt.Println("Client Application running .")
- http.ListenAndServe(":8080", nil)
+ http.ListenAndServe(":80", nil)
 }
