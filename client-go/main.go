@@ -11,7 +11,7 @@ import (
 func main() {
 
  circuitBreaker := config.CircuitBreakerConfig()
- request := request.NewHttpRequest(circuitBreaker, http.Client{}, "http://localhost:8082/api/v1/ping")
+ request := request.NewHttpRequest(circuitBreaker, http.Client{}, "http://localhost:8080/api/v1/ping")
  handler := handler.NewHandler(*request)
 
  http.HandleFunc("/api/v1/ping", handler.Ping)
