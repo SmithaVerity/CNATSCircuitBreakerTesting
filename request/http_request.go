@@ -2,7 +2,7 @@ package request
 
 import (
  "fmt"
- "github.com/sony/gobreaker"
+ "github.com/SmithaVerity/gobreaker"
  "io/ioutil"
  "log"
  "net/http"
