@@ -44,7 +44,7 @@ func (h *HttpRequest) PingToServerApp() ([]byte, error) {
   return response, nil
  })
  if err != nil {
-  return []byte("pong from client-go"), err
+  return []byte("Sorry, I am Client. Hi"), err
  }
 
  return body.([]byte), nil
