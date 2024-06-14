@@ -14,5 +14,5 @@ func main() {
 
 func ping(w http.ResponseWriter, r *http.Request) {
 
- fmt.Fprintf(w, "pong from server-go")
+ fmt.Fprintf(w, "Hiiii from Server!!!!")
 }
