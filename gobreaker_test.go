@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var defaultCB *CircuitBreaker
-var customCB *CircuitBreaker
+var defaultCB *CircuitBreaker[bool]
+var customCB *CircuitBreaker[bool]
 
 type StateChange struct {
 	name string
@@ -20,30 +20,30 @@ type StateChange struct {
 
 var stateChange StateChange
 
-func pseudoSleep(cb *CircuitBreaker, period time.Duration) {
+func pseudoSleep(cb *CircuitBreaker[bool], period time.Duration) {
 	if !cb.expiry.IsZero() {
 		cb.expiry = cb.expiry.Add(-period)
 	}
 }
 
-func succeed(cb *CircuitBreaker) error {
-	_, err := cb.Execute(func() (interface{}, error) { return nil, nil })
+func succeed(cb *CircuitBreaker[bool]) error {
+	_, err := cb.Execute(func() (bool, error) { return true, nil })
 	return err
 }
 
-func succeedLater(cb *CircuitBreaker, delay time.Duration) <-chan error {
+func succeedLater(cb *CircuitBreaker[bool], delay time.Duration) <-chan error {
 	ch := make(chan error)
 	go func() {
-		_, err := cb.Execute(func() (interface{}, error) {
+		_, err := cb.Execute(func() (bool, error) {
 			time.Sleep(delay)
-			return nil, nil
+			return true, nil
 		})
 		ch <- err
 	}()
 	return ch
 }
 
-func succeed2Step(cb *TwoStepCircuitBreaker) error {
+func succeed2Step(cb *TwoStepCircuitBreaker[bool]) error {
 	done, err := cb.Allow()
 	if err != nil {
 		return err
@@ -53,16 +53,16 @@ func succeed2Step(cb *TwoStepCircuitBreaker) error {
 	return nil
 }
 
-func fail(cb *CircuitBreaker) error {
+func fail(cb *CircuitBreaker[bool]) error {
 	msg := "fail"
-	_, err := cb.Execute(func() (interface{}, error) { return nil, fmt.Errorf(msg) })
+	_, err := cb.Execute(func() (bool, error) { return false, fmt.Errorf(msg) })
 	if err.Error() == msg {
 		return nil
 	}
 	return err
 }
 
-func fail2Step(cb *TwoStepCircuitBreaker) error {
+func fail2Step(cb *TwoStepCircuitBreaker[bool]) error {
 	done, err := cb.Allow()
 	if err != nil {
 		return err
@@ -72,12 +72,12 @@ func fail2Step(cb *TwoStepCircuitBreaker) error {
 	return nil
 }
 
-func causePanic(cb *CircuitBreaker) error {
-	_, err := cb.Execute(func() (interface{}, error) { panic("oops"); return nil, nil })
+func causePanic(cb *CircuitBreaker[bool]) error {
+	_, err := cb.Execute(func() (bool, error) { panic("oops"); return false, nil })
 	return err
 }
 
-func newCustom() *CircuitBreaker {
+func newCustom() *CircuitBreaker[bool] {
 	var customSt Settings
 	customSt.Name = "cb"
 	customSt.MaxRequests = 3
@@ -95,20 +95,20 @@ func newCustom() *CircuitBreaker {
 		stateChange = StateChange{name, from, to}
 	}
 
-	return NewCircuitBreaker(customSt)
+	return NewCircuitBreaker[bool](customSt)
 }
 
-func newNegativeDurationCB() *CircuitBreaker {
+func newNegativeDurationCB() *CircuitBreaker[bool] {
 	var negativeSt Settings
 	negativeSt.Name = "ncb"
 	negativeSt.Interval = time.Duration(-30) * time.Second
 	negativeSt.Timeout = time.Duration(-90) * time.Second
 
-	return NewCircuitBreaker(negativeSt)
+	return NewCircuitBreaker[bool](negativeSt)
 }
 
 func init() {
-	defaultCB = NewCircuitBreaker(Settings{})
+	defaultCB = NewCircuitBreaker[bool](Settings{})
 	customCB = newCustom()
 }
 
@@ -124,7 +124,7 @@ func TestStateConstants(t *testing.T) {
 }
 
 func TestNewCircuitBreaker(t *testing.T) {
-	defaultCB := NewCircuitBreaker(Settings{})
+	defaultCB := NewCircuitBreaker[bool](Settings{})
 	assert.Equal(t, "", defaultCB.name)
 	assert.Equal(t, uint32(1), defaultCB.maxRequests)
 	assert.Equal(t, time.Duration(0), defaultCB.interval)
@@ -265,7 +265,7 @@ func TestCustomCircuitBreaker(t *testing.T) {
 }
 
 func TestTwoStepCircuitBreaker(t *testing.T) {
-	tscb := NewTwoStepCircuitBreaker(Settings{Name: "tscb"})
+	tscb := NewTwoStepCircuitBreaker[bool](Settings{Name: "tscb"})
 	assert.Equal(t, "tscb", tscb.Name())
 
 	for i := 0; i < 5; i++ {
@@ -346,7 +346,7 @@ func TestCustomIsSuccessful(t *testing.T) {
 	isSuccessful := func(error) bool {
 		return true
 	}
-	cb := NewCircuitBreaker(Settings{IsSuccessful: isSuccessful})
+	cb := NewCircuitBreaker[bool](Settings{IsSuccessful: isSuccessful})
 
 	for i := 0; i < 5; i++ {
 		assert.Nil(t, fail(cb))
