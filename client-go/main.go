@@ -11,10 +11,10 @@ import (
 func main() {
 
  circuitBreaker := config.CircuitBreakerConfig()
- request := request.NewHttpRequest(circuitBreaker, http.Client{}, "http://localhost:8080/api/v1/ping")
+ request := request.NewHttpRequest(circuitBreaker, http.Client{}, "http://localhost:8081/api/v1/ping")
  handler := handler.NewHandler(*request)
 
  http.HandleFunc("/api/v1/ping", handler.Ping)
- fmt.Println("Client Application running .")
- http.ListenAndServe(":80", nil)
+ fmt.Println("Client Application running.")
+ http.ListenAndServe(":8080", nil)
 }
