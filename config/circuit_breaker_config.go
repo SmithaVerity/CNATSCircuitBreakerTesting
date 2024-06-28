@@ -1,7 +1,7 @@
 package config
 
 import (
- "github.com/SmithaVerity/gobreaker"
+ "github.com/sony/gobreaker"
  "time"
 )
 
