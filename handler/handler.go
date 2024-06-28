@@ -18,7 +18,7 @@ func (h *Handler) Ping(w http.ResponseWriter, r *http.Request) {
 
  res, err := h.httpRequest.PingToServerApp()
  data := map[string]string{
-  "message": "Message???",
+  "message": "Call from Client to Server",
   "data":    string(res),
  }
 
