@@ -1,16 +1,5 @@
-gobreaker
+Circuit Breaker Testing using Go
 =========
-
-[![GoDoc](https://godoc.org/github.com/sony/gobreaker?status.svg)](https://godoc.org/github.com/sony/gobreaker)
-
-[gobreaker][repo-url] implements the [Circuit Breaker pattern](https://msdn.microsoft.com/en-us/library/dn589784.aspx) in Go.
-
-Installation
-------------
-
-```
-go get github.com/sony/gobreaker/v2
-```
 
 Usage
 -----
@@ -120,14 +109,4 @@ func Get(url string) ([]byte, error) {
 }
 ```
 
-See [example](https://github.com/sony/gobreaker/blob/master/v2/example) for details.
 
-License
--------
-
-The MIT License (MIT)
-
-See [LICENSE](https://github.com/sony/gobreaker/blob/master/LICENSE) for details.
-
-
-[repo-url]: https://github.com/sony/gobreaker
